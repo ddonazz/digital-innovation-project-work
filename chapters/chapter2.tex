@@ -1,0 +1,55 @@
+\section{Cos'è un API Gateway e il suo Ruolo nelle Architetture a Microservizi}
+
+Un API Gateway è un componente architetturale che funge da singolo punto di ingresso per tutte le richieste dei client verso un sistema di microservizi backend. In essenza, agisce come un \enquote{reverse proxy} o un \enquote{edge service} che si interpone tra i client e i servizi backend. Questo modello risolve una problematica comune nelle architetture a microservizi, nota come \enquote{N+1 problem}, dove un client dovrebbe altrimenti conoscere e interagire direttamente con N servizi backend distinti per soddisfare una singola richiesta complessa. L'API Gateway aggrega queste interazioni, presentando un'unica interfaccia semplificata ai client.
+
+Il ruolo di un API Gateway è multifunzionale e critico per la gestione efficace di sistemi distribuiti. Esso non si limita al semplice routing delle richieste al servizio appropriato, ma centralizza anche una serie di preoccupazioni trasversali che altrimenti dovrebbero essere implementate in ogni singolo microservizio. Questa centralizzazione è fondamentale per mantenere la coerenza, ridurre la ridondanza del codice e accelerare lo sviluppo.
+
+La funzione di un API Gateway come punto di ingresso unificato semplifica intrinsecamente l'integrazione dei client e disaccoppia i client dall'evoluzione dei servizi di backend. Se i client fossero costretti a interagire direttamente con ogni microservizio, dovrebbero essere a conoscenza degli indirizzi specifici, dei protocolli e delle modifiche di ciascuno. Un Gateway API astrae questa complessità, offrendo un'interfaccia coerente. Questa separazione significa che le modifiche ai servizi di backend (ad esempio, la fusione o la divisione di servizi, o la migrazione di tecnologie) possono essere implementate senza richiedere aggiornamenti sul lato client. Ciò riduce significativamente il sovraccarico di manutenzione e accelera i cicli di sviluppo, poiché i team possono concentrarsi sulla logica di business senza preoccuparsi delle implicazioni per i client.
+
+\section{Funzionalità Comuni dei Gateway API}
+
+Un Gateway API robusto e completo offre una vasta gamma di funzionalità essenziali per la gestione efficiente e sicura delle API in un ambiente a microservizi. Queste funzionalità sono progettate per affrontare le sfide intrinseche dei sistemi distribuiti e per centralizzare le preoccupazioni trasversali.
+
+Le funzionalità comuni includono:
+\begin{itemize}
+    \item \textbf{Routing:} La capacità fondamentale di dirigere le richieste in ingresso al servizio backend corretto in base a regole predefinite, come il percorso dell'URL, gli header o i parametri della richiesta.
+    \item \textbf{Autenticazione e Autorizzazione:} Applicazione centralizzata delle politiche di sicurezza. Questo include la gestione dell'autenticazione (ad esempio, Basic Auth, OAuth2, OpenID Connect) e dell'autorizzazione (controlli di accesso basati sui ruoli). La funzionalità di Single Sign-On (SSO) è spesso integrata per semplificare l'accesso tra diverse applicazioni.
+    \item \textbf{Limitazione del Tasso (Rate Limiting):} Controllo del numero di richieste che un client può effettuare in un determinato periodo di tempo per prevenire abusi, attacchi Denial of Service (DoS) e garantire un uso equo delle risorse.
+    \item \textbf{Bilanciamento del Carico (Load Balancing) e Tolleranza ai Guasti (Fault Tolerance):} Distribuzione uniforme del traffico in ingresso tra più istanze di un servizio backend per migliorare le prestazioni e la disponibilità, garantendo che il sistema rimanga reattivo anche in caso di guasti o sovraccarichi di singoli servizi.
+    \item \textbf{Monitoraggio e Logging:} Raccolta centralizzata di metriche e log relativi al traffico API, alle prestazioni e agli errori, fornendo visibilità sull'operatività del sistema e facilitando il debugging.
+    \item \textbf{Trasformazione di Protocollo e Formato Dati:} Capacità di convertire richieste e risposte tra diversi protocolli (ad esempio, HTTP a gRPC) o formati di dati (ad esempio, JSON a XML), facilitando l'integrazione tra sistemi eterogenei.
+    \item \textbf{Versionamento delle API:} Gestione di più versioni di un'API, consentendo agli sviluppatori di introdurre nuove funzionalità o modifiche senza interrompere i client esistenti.
+    \item \textbf{Caching:} Memorizzazione di risposte a richieste frequenti per ridurre il carico sui servizi backend e migliorare i tempi di risposta.
+    \item \textbf{Circuit Breaker (Interruttore di Circuito):} Un pattern di resilienza che previene i guasti a cascata in un sistema distribuito, isolando i servizi che non rispondono e fornendo risposte di fallback.
+    \item \textbf{Header di Sicurezza:} Applicazione automatica di header di sicurezza (ad esempio, Cache-Control, X-Content-Type-Options, Strict-Transport-Security) per rafforzare la postura di sicurezza complessiva.
+\end{itemize}
+
+L'aggregazione di queste preoccupazioni trasversali all'interno del Gateway API le trasforma da responsabilità individuali di ciascun servizio in politiche centralizzate e gestibili. Questo approccio riduce il carico di sviluppo sui team, che possono concentrarsi sulla creazione di valore di business piuttosto che sulla ricostruzione di componenti infrastrutturali. Il risultato è un'accelerazione dell'innovazione e del tempo di commercializzazione, oltre a una conformità più efficiente e un'esperienza cliente superiore, derivanti dall'applicazione coerente di best practice di sicurezza e gestione del traffico.
+
+\begin{table}[htbp]
+\centering
+\caption{Funzionalità Comuni di un API Gateway (con librerie standard)}
+\renewcommand{\arraystretch}{1.5}
+\label{tab:funzionalita_api_gateway_standard}
+\begin{tabularx}{\linewidth}{
+    >{\raggedright\arraybackslash}p{0.22\linewidth} % Prima colonna un po' più stretta
+    >{\raggedright\arraybackslash}X                 % Seconda colonna si espande
+    >{\raggedright\arraybackslash}X                 % Terza colonna si espande
+}
+\toprule
+\textbf{Funzionalità} & \textbf{Descrizione} & \textbf{Beneficio Principale} \\
+\midrule
+Routing & Inoltra le richieste in ingresso al servizio backend appropriato. & Semplifica l'integrazione client e la gestione del traffico. \\
+Autenticazione \& Autorizzazione & Applica politiche di sicurezza centralizzate per l'accesso alle API. & Migliora la sicurezza e la conformità, riduce il rischio. \\
+Limitazione del Tasso (Rate Limiting) & Controlla il numero di richieste per prevenire abusi e sovraccarichi. & Garantisce stabilità del sistema e equità d'uso. \\
+Bilanciamento del Carico & Distribuisce il traffico tra le istanze del servizio per ottimizzare le prestazioni. & Aumenta la disponibilità e la scalabilità. \\
+Tolleranza ai Guasti & Gestisce i fallimenti dei servizi backend per mantenere la disponibilità. & Aumenta la resilienza del sistema. \\
+Monitoraggio \& Logging & Raccoglie dati sul traffico API, le prestazioni e gli errori. & Fornisce visibilità operativa e facilita il debugging. \\
+Trasformazione Protocollo/Dati & Converte richieste/risposte tra diversi formati o protocolli. & Facilita l'integrazione con sistemi eterogenei. \\
+Versionamento API & Gestisce più versioni di un'API contemporaneamente. & Consente evoluzione delle API senza interrompere i client esistenti. \\
+Caching & Memorizza le risposte per richieste frequenti. & Riduce la latenza e il carico sui servizi backend. \\
+Circuit Breaker (Interruttore di Circuito) & Isola i servizi problematici per prevenire guasti a cascata. & Migliora la resilienza del sistema in ambienti distribuiti. \\
+Header di Sicurezza & Applica automaticamente header HTTP per rafforzare la sicurezza. & Migliora la postura di sicurezza complessiva. \\
+\bottomrule
+\end{tabularx}
+\end{table}

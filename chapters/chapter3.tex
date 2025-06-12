@@ -1,0 +1,126 @@
+\section{Panoramica e Principi Fondamentali}
+
+Spring Cloud Gateway (SCG) si presenta come un Gateway API leggero e reattivo, costruito sopra il framework Spring. È stato progettato per fornire un metodo semplice ma efficace per instradare le richieste alle API e per gestire le preoccupazioni trasversali quali sicurezza, monitoraggio/metriche e resilienza. La sua architettura è saldamente radicata su tecnologie moderne dell'ecosistema Spring: Spring Framework 5, Project Reactor e Spring Boot 2.0. Questa fondazione è cruciale, poiché conferisce a SCG la sua natura reattiva e non bloccante, un aspetto distintivo che lo rende particolarmente adatto per gestire un elevato numero di richieste concorrenti con bassa latenza.
+
+La scelta di basare SCG su Project Reactor e Spring WebFlux non è un mero dettaglio tecnico, ma una decisione architetturale fondamentale che lo distingue dai gateway tradizionali basati su modelli di programmazione bloccanti. I modelli di programmazione reattiva sono intrinsecamente progettati per gestire un gran numero di connessioni concorrenti con un numero ridotto di thread, ottimizzando l'utilizzo delle risorse e migliorando le prestazioni sotto carichi pesanti. Questo è particolarmente vantaggioso in ambienti a microservizi, dove la capacità di gestire efficacemente un flusso elevato di traffico è essenziale per garantire \enquote{carichi di lavoro a bassa latenza e alta produttività}.
+
+Il ciclo di vita di una richiesta all'interno di Spring Cloud Gateway segue un flusso ben definito:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Client Request:} Una richiesta viene inviata dal client al Gateway API.
+    \item \textbf{Gateway Handler Mapping:} Il Gateway determina se la richiesta corrisponde a una route definita.
+    \item \textbf{Gateway Web Handler:} Se una corrispondenza viene trovata, la richiesta viene inoltrata a questo handler.
+    \item \textbf{Filter Chain:} L'handler esegue la richiesta attraverso una catena di filtri specifici per quella richiesta. Questi filtri possono modificare la richiesta prima che venga inviata al servizio di destinazione (pre-filtri) o la risposta che ritorna al client (post-filtri).
+    \item \textbf{Downstream Service:} La richiesta modificata viene inviata al servizio backend appropriato.
+    \item \textbf{Response:} La risposta dal servizio backend ritorna attraverso la catena di filtri (post-filtri) prima di essere inviata al client.
+\end{enumerate}
+Questo modello di elaborazione basato su filtri e route consente una grande flessibilità e modularità nella gestione del traffico API.
+
+\section{Componenti Chiave: Route, Predicati e Filtri}
+
+Spring Cloud Gateway si basa su tre componenti fondamentali per la sua operatività: Route, Predicati e Filtri. La modularità di questi elementi consente una configurazione dichiarativa e un'estensibilità notevole, permettendo di gestire logiche di routing complesse e preoccupazioni trasversali con grande flessibilità.
+\begin{description}
+    \item[Route:] Una Route è il \enquote{blocco di costruzione fondamentale} del gateway. È definita da un ID univoco, un URI di destinazione (il servizio backend a cui la richiesta deve essere inoltrata), una collezione di predicati e una collezione di filtri. Una route viene considerata \enquote{matched} (corrispondente) se l'operazione logica AND su tutti i suoi predicati restituisce true.
+
+    Esempio di configurazione (YAML):
+    \begin{lstlisting}[language=yaml, caption=Esempio di configurazione di una route in YAML]
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: book-service-route
+          uri: http://localhost:8081 # URI del servizio backend
+          predicates:
+            - Path=/api/books/** # Predicato di percorso
+          filters:
+            - StripPrefix=2 # Rimuove /api/books dal percorso prima di inoltrare
+    \end{lstlisting}
+
+    \item[Predicate:] I Predicati sono funzioni booleane (Java 8 Function Predicate) che permettono di far corrispondere le route a qualsiasi attributo della richiesta HTTP. Questo include header, parametri, metodi HTTP, host, e persino il tempo. È possibile combinare più predicati con operatori logici AND per creare regole di routing altamente specifiche.
+
+    Esempi comuni di predicati includono: Path, Host, Method, Query, Header, Cookie, RemoteAddr, After, Before, Between. I predicati After, Before e Between sono particolarmente utili per scenari come le finestre di manutenzione, permettendo di instradare il traffico in base a intervalli temporali specifici.
+
+    \item[Filter:] I Filtri forniscono un meccanismo per modificare le richieste HTTP in ingresso e le risposte HTTP in uscita. Esistono due tipi principali di filtri:
+    \begin{itemize}
+        \item \textbf{GatewayFilter:} Applicati a una specifica route.
+        \item \textbf{GlobalFilter:} Applicati a tutte le route. Spring Cloud Gateway include molti filtri predefiniti (ad esempio, AddRequestHeader, AddResponseHeader, RateLimiter, RewritePath). È anche possibile implementare filtri personalizzati per esigenze di business uniche. Ad esempio, un filtro personalizzato potrebbe essere utilizzato per aggiungere un timestamp alla richiesta in ingresso prima che venga inoltrata (AddRequestTimeHeaderPreFilter) o per simulare una validazione e bloccare la richiesta se un header di autorizzazione non è presente.
+    \end{itemize}
+\end{description}
+
+L'enfasi ricorrente su Route, Predicati e Filtri sottolinea la loro centralità nel potere di Spring Cloud Gateway. 
+La capacità di definire le route in modo dichiarativo, di combinare i predicati per una corrispondenza granulare e di applicare i filtri per la modifica delle richieste/risposte significa che le politiche di gestione delle API, anche le più complesse, possono essere costruite a partire da blocchi più piccoli e riutilizzabili. 
+Questa modularità rende il gateway altamente configurabile ed estensibile, consentendo agli sviluppatori di aggiungere facilmente nuove funzionalità o di implementare filtri personalizzati per requisiti specifici. 
+Questo principio di design è fondamentale per la sua adattabilità in diversi ambienti a microservizi.
+
+\begin{table}[htbp]
+\centering
+\caption{Esempi di Predicati di Route in Spring Cloud Gateway}
+\renewcommand{\arraystretch}{1.5}
+\label{tab:predicati_scg}
+\begin{tabularx}{\linewidth}{%
+    >{\RaggedRight\arraybackslash}p{0.17\linewidth}
+    >{\RaggedRight\arraybackslash}X
+    >{\RaggedRight\arraybackslash}p{0.22\linewidth}
+    >{\RaggedRight\arraybackslash}X
+}
+\toprule
+\textbf{Predicato} & \textbf{Descrizione} & \textbf{Parametri Esempio} & \textbf{Esempio di Configurazione} \\
+\midrule
+Path & Corrisponde al percorso dell'URL della richiesta. & \lstinline{/api/users/**} & \lstinline{predicates: - Path=/api/users/**} \\
+Host & Corrisponde all'header Host della richiesta. & \lstinline{*.example.com} & \lstinline{predicates: - Host=*.example.com} \\
+Method & Corrisponde al metodo HTTP della richiesta. & GET, POST & \lstinline{predicates: - Method=GET,POST} \\
+Query & Corrisponde a un parametro di query specifico. & param=value & \lstinline{predicates: - Query=param,value} \\
+Header & Corrisponde a un header HTTP specifico e al suo valore. & \lstinline|X-Request-Id, \d+| & \lstinline|predicates: - Header=X-Request-Id, \d+| \\ 
+After & Corrisponde alle richieste che avvengono dopo una data e ora specificate. & 2017-01-20T... & \lstinline|predicates: - After=2017-01-20T17:42:47.789Z[UTC]| \\ 
+Before & Corrisponde alle richieste che avvengono prima di una data e ora specificate. & 2017-01-21T... & \lstinline|predicates: - Before=2017-01-21T17:42:47.789Z[UTC]| \\
+Between & Corrisponde alle richieste che avvengono tra due date e ore specificate. & datetime1, datetime2 & \lstinline|predicates: - Between=..., ...| \\
+RemoteAddr & Corrisponde all'indirizzo IP remoto della richiesta. & 192.168.1.1/24 & \lstinline{predicates: - RemoteAddr=192.168.1.1/24} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Esempi di Filtri in Spring Cloud Gateway}
+\renewcommand{\arraystretch}{1.5}
+\label{tab:filtri_scg_}
+\begin{tabularx}{\linewidth}{%
+    >{\RaggedRight\arraybackslash}p{0.2\linewidth} 
+    >{\RaggedRight\arraybackslash}p{0.12\linewidth} 
+    >{\RaggedRight\arraybackslash}X                 
+    >{\RaggedRight\arraybackslash}X                 
+}
+\toprule
+\textbf{Filtro} & \textbf{Tipo} & \textbf{Descrizione} & \textbf{Caso d'Uso Esempio} \\
+\midrule
+AddRequestHeader & GatewayFilter & Aggiunge un header alla richiesta in uscita. & \lstinline{filters: - AddRequestHeader=X-Request-Foo, Bar} \\
+AddResponseHeader & GatewayFilter & Aggiunge un header alla risposta in uscita. & \lstinline{filters: - AddResponseHeader=X-Response-Bye, Bye} \\
+StripPrefix & GatewayFilter & Rimuove un prefisso dal percorso della richiesta. & \lstinline{filters: - StripPrefix=1} per /api/v1/users $\rightarrow$ /users \\
+RewritePath & GatewayFilter & Riscrive il percorso della richiesta usando un'espressione regolare. & \lstinline{filters: - RewritePath=/foo/(?<segment>.*), /\$\{segment\}} \\
+RequestRateLimiter & GatewayFilter & Limita il tasso di richieste per utente/IP. & \lstinline{filters: - RequestRateLimiter=} (con config.) \\
+CircuitBreaker & GatewayFilter & Implementa un pattern Circuit Breaker per la resilienza. & \lstinline{filters: - CircuitBreaker=myServiceCircuit} \\
+SecureHeaders & GlobalFilter & Applica globalmente header di sicurezza HTTP. & \lstinline{tanzu: api-gateway: secure-headers: deactivated: false} \\
+CustomGlobal\-ExceptionHandler & GlobalFilter & Gestisce eccezioni a livello globale per risposte uniformi. & Intercetta HttpClientErrorException per risposte di errore consistenti \\
+Authorization Filter & GlobalFilter & Filtro personalizzato per autenticazione/autorizzazione. & Verifica token OAuth2 o credenziali Basic Auth \\
+AddRequestTime\-Header\-PreFilter & GlobalFilter & Filtro personalizzato che aggiunge un timestamp alla richiesta. & \lstinline{filters: - AddRequestTimeHeaderPreFilter} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Funzionalità Avanzate: Sicurezza, Monitoraggio, Resilienza}
+
+Oltre alle capacità fondamentali di routing e trasformazione, Spring Cloud Gateway eccelle nella gestione di funzionalità avanzate che sono cruciali per la robustezza e la sicurezza delle architetture a microservizi. Queste includono la sicurezza centralizzata, il monitoraggio e le metriche, e la resilienza del sistema.
+\begin{description}
+    \item[Sicurezza:] SCG centralizza le preoccupazioni di sicurezza, riducendo la necessità di implementare logiche di sicurezza in ogni singolo microservizio. Questo include:
+    \begin{itemize}
+        \item \textit{Autenticazione e Autorizzazione:} Supporta vari meccanismi di autenticazione come Basic Auth e OAuth2/OpenID Connect. Le funzionalità di Single Sign-On (SSO) sono particolarmente rilevanti, in quanto possono essere configurate una sola volta a livello di gateway, eliminando la necessità di implementazioni diverse per ogni sistema backend. Ciò consente un controllo degli accessi basato sui ruoli e semplifica notevolmente la conformità normativa, riducendo i costi di conformità fino al 40\% per le organizzazioni con controlli di sicurezza centralizzati.
+        \item \textit{Header di Sicurezza:} L'applicazione automatica di header di sicurezza (es. Cache-Control, X-Content-Type-Options, Strict-Transport-Security) a livello globale per tutte le route è una best practice che rafforza la postura di sicurezza complessiva.
+        \item \textit{Gestione Globale delle Eccezioni:} Implementare una gestione globale delle eccezioni in SCG è essenziale per catturare e gestire in modo uniforme gli errori che si verificano all'interno del gateway. Questo previene risposte di errore frammentate e incoerenti, migliorando l'esperienza utente e facilitando il debugging.
+    \end{itemize}
+    \item[Monitoraggio/Metriche:] SCG può essere integrato con strumenti di monitoraggio e logging esterni come Splunk o ELK Stack. Questa integrazione fornisce una visibilità centralizzata sul traffico API, sulle prestazioni e sugli errori. La capacità di registrare ogni eccezione per analisi future è una best practice fondamentale.
+    \item[Resilienza:] La resilienza è vitale in ambienti distribuiti per prevenire i guasti a cascata. SCG offre funzionalità come:
+    \begin{itemize}
+        \item \textit{Integrazione con Circuit Breaker:} L'integrazione con circuit breaker come Hystrix (o Resilience4j in versioni più recenti) consente di isolare i servizi che non rispondono, evitando che un singolo guasto si propaghi attraverso l'intero sistema.
+        \item \textit{Gestione Intelligente del Traffico e Tolleranza ai Guasti:} SCG offre funzionalità avanzate di gestione del traffico e alta disponibilità che possono mantenere prestazioni consistenti anche durante i picchi di traffico. Questo include il bilanciamento del carico e la gestione dei fallimenti.
+    \end{itemize}
+\end{description}
+La centralizzazione di funzionalità avanzate come la sicurezza e la resilienza a livello di gateway le trasforma da correzioni reattive in salvaguardie architetturali proattive. Questo approccio migliora significativamente la robustezza complessiva del sistema e la sua postura di conformità. Gestendo questi aspetti in modo centralizzato, il sistema diventa più resistente ai guasti e agli attacchi, e la conformità normativa è più facile da gestire, riducendo potenziali sanzioni. Questo non si limita alla mera funzionalità, ma si estende all'impatto strategico di tali funzionalità sull'integrità operativa del sistema e sui risultati di business.

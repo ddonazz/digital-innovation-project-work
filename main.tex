@@ -1,0 +1,80 @@
+\documentclass[a4paper]{book}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{csquotes}
+\usepackage[hidelinks]{hyperref}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepackage{biblatex}
+\usepackage{lmodern}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{caption}  
+\usepackage{xurl}
+\usepackage{amsmath} 
+\usepackage{tabularx}
+\usepackage{ragged2e}  
+
+\title{Studio e Implementazione di un Gateway API con Spring Cloud in Architetture a Microservizi}
+\author{Andrea Donadello} 
+
+
+\pgfplotsset{compat=1.18}
+
+\setlist{itemsep=0pt, topsep=0.5ex}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize, 
+  breaklines=true,          
+  breakatwhitespace=true,   
+  columns=flexible,         
+}
+
+\lstdefinelanguage{yaml}{
+  keywords={true,false,null,y,n,on,off},
+  keywordstyle=\color{blue}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{gray}\ttfamily,
+  string=[s]{"}{"}, 
+  stringstyle=\color{red}\ttfamily, 
+  morestring=[s]{'}{'}, 
+  literate={-}{{{\color{black}-}}}1
+           {>}{{{\color{black}>}}}1
+           {:}{{{\color{black}:}}}1
+}
+
+\newenvironment{abstract}%
+  {\clearpage\null\vfill\begin{center}%
+    \bfseries\abstractname\end{center}}%
+  {\vfill\null}
+  
+\addbibresource{references.bib}
+
+\begin{document}
+
+    \maketitle
+
+    \input{chapters/abstract}
+
+    \tableofcontents
+
+    \chapter{Introduzione}
+    \input{chapters/introduction}
+
+    \chapter[Concetti Fondamentali]{Concetti Fondamentali dei Gateway API}
+    \input{chapters/chapter2}
+
+    \chapter[Spring Cloud Gateway]{Spring Cloud Gateway: Caratteristiche e Architettura}
+    \input{chapters/chapter3}
+
+\end{document}
