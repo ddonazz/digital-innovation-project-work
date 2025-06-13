@@ -22,23 +22,114 @@
 \usepackage{amsmath} 
 \usepackage{tabularx}
 \usepackage{ragged2e}  
+\usepackage{textcomp} 
 
 \title{Studio e Implementazione di un Gateway API con Spring Cloud in Architetture a Microservizi}
 \author{Andrea Donadello} 
-
 
 \pgfplotsset{compat=1.18}
 
 \setlist{itemsep=0pt, topsep=0.5ex}
 
 \lstset{
-  basicstyle=\ttfamily\footnotesize, 
-  breaklines=true,          
-  breakatwhitespace=true,   
-  columns=flexible,         
+    basicstyle=\small\ttfamily,
+    commentstyle=\color{green!50!black}\itshape,
+    keywordstyle=\color{blue}\bfseries, 
+    stringstyle=\color{red!70!black}, 
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    captionpos=b,
+    tabsize=2,
+    showspaces=false,
+    showtabs=false,
+    columns=fullflexible,
+    keepspaces=true,
+    flexiblecolumns=true, 
+    literate={-}{-}1 {=}{=}1 {~}{~}1 
 }
 
-\lstdefinelanguage{yaml}{
+% --- Definizione dei colori ---
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codeblue}{rgb}{0.0,0.2,0.65} 
+\definecolor{codeorange}{rgb}{0.9,0.3,0}  
+\definecolor{codebrown}{rgb}{0.6,0.4,0.2} 
+\definecolor{codeannotation}{rgb}{0.4,0.4,0.4} 
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97} 
+
+\lstdefinestyle{JavaStyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=[1]\color{codeblue}\bfseries,    
+    keywordstyle=[2]\color{codebrown},           
+    keywordstyle=[3]\color{codeannotation}\itshape,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codeorange},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=lines, 
+    rulecolor=\color{black!30},
+    title=\lstname,
+    literate=
+        {->}{{$\rightarrow$}}2 
+        {<-}{{$\leftarrow$}}2
+        {<L>}{{$\mathcal{L}$}}1,
+    postbreak=\mbox{\textcolor{red}{$\hookleftarrow$}\space}, 
+    escapeinside={\%*}{*)} 
+}
+
+\lstdefinelanguage{Java}{
+    keywords=[1]{ 
+        abstract,continue,for,new,switch,assert,default,goto,package,synchronized,
+        boolean,do,if,private,this,break,double,implements,protected,throw,
+        byte,else,import,public,throws,case,enum,instanceof,return,transient,
+        catch,extends,int,short,try,char,final,interface,static,void,
+        class,finally,long,strictfp,volatile,const,float,native,super,while,
+        % Java 10+
+        var,
+        % Java 14+
+        record, yield,
+        % Java 17+
+        sealed, non-sealed, permits
+    },
+    keywordstyle=[1]\color{codeblue}\bfseries,
+    keywords=[2]{ 
+        true,false,null,
+        String,Integer,Double,Boolean,Character,Byte,Short,Long,Float,Object,Void,
+        List,ArrayList,Map,HashMap,Set,HashSet,Exception,System,Math,
+        Optional,Stream,Runnable,Thread,Class,StringBuilder,StringBuffer
+    },
+    keywordstyle=[2]\color{codebrown},
+    keywords=[3]{ 
+        @Override,@Deprecated,@SuppressWarnings,@FunctionalInterface,@SafeVarargs,
+        @NonNull,@Nullable,@PostConstruct,@PreDestroy,@Entity,@Table,@Id,@Column,
+        @Autowired,@Component,@Service,@Repository,@Controller,@RestController,
+        @GetMapping,@PostMapping,@PutMapping,@DeleteMapping,@RequestMapping,
+        @Data 
+    },
+    keywordstyle=[3]\color{codeannotation}\itshape,
+    sensitive=true,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morecomment=[s][\color{codegreen!80!black}\itshape]{/**}{*/}, 
+    string=[b]{"},
+    morestring=[b]{'},
+    alsoletter={_,\$}
+}
+
+\lstdefinelanguage{Yaml}{
   keywords={true,false,null,y,n,on,off},
   keywordstyle=\color{blue}\bfseries,
   identifierstyle=\color{black},
@@ -76,5 +167,11 @@
 
     \chapter[Spring Cloud Gateway]{Spring Cloud Gateway: Caratteristiche e Architettura}
     \input{chapters/chapter3}
+
+    \chapter[Vantaggi e Casi d'Uso]{Vantaggi e Casi d'Uso di Spring Cloud Gateway}
+    \input{chapters/chapter4}
+
+    \chapter[Implementazione Pratica]{Implementazione Pratica: Il Progetto API Gateway}
+    \input{chapters/chapter5}
 
 \end{document}

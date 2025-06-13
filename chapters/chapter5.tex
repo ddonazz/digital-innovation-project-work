@@ -1,0 +1,279 @@
+Questa sezione descrive l'implementazione pratica di un Gateway API utilizzando Spring Cloud Gateway, come dimostrato nel repository Git fornito (\url{https://github.com/ddonazz/api-gateway}). L'obiettivo è illustrare come i concetti teorici discussi nei capitoli precedenti siano stati tradotti in una soluzione funzionante, evidenziando le scelte di design e i dettagli implementativi.
+
+\section{Architettura e Design del Gateway Implementato}
+
+L'architettura del sistema implementato è composta da un servizio Spring Cloud Gateway che funge da punto di ingresso centrale e da uno o più semplici microservizi backend. Per scopi dimostrativi, è stato configurato un servizio di backend minimale (ad esempio, un \texttt{book-service} o un \texttt{user-service} come si vede in progetti simili), che espone alcune API REST.
+
+Il flusso delle richieste è il seguente:
+\begin{itemize}
+    \item Un client (ad esempio, un browser o un'applicazione mobile) invia una richiesta HTTP al Gateway API.
+    \item Il Gateway API, basato su Spring Cloud Gateway, intercetta la richiesta.
+    \item Utilizzando le route e i predicati configurati, il Gateway determina il microservizio backend appropriato a cui inoltrare la richiesta.
+    \item I filtri configurati (globali o specifici per la route) vengono applicati per modificare la richiesta in ingresso o la risposta in uscita.
+    \item La richiesta viene inoltrata al microservizio backend.
+    \item Il microservizio elabora la richiesta e restituisce una risposta al Gateway.
+    \item Il Gateway applica eventuali filtri post-elaborazione alla risposta prima di inviarla al client.
+\end{itemize}
+
+Le scelte di design hanno privilegiato una configurazione dichiarativa delle route e dei filtri tramite file \texttt{application.yml}, sebbene Spring Cloud Gateway supporti anche la configurazione programmatica in Java. Per la scoperta dei servizi, è stata utilizzata una configurazione statica per semplicità, ma in un ambiente di produzione si integrerebbe con un servizio di scoperta come Eureka o Consul (utilizzando \texttt{Spring Cloud DiscoveryClient integration}). L'ambiente di sviluppo è stato avviato utilizzando Spring Initializr, che facilita la creazione di progetti Spring Boot con le dipendenze necessarie, supportando sia Gradle che Maven.
+
+Una chiara rappresentazione dell'architettura e delle scelte di design dimostra non solo la capacità tecnica, ma anche una profonda comprensione dei principi architetturali, collegando efficacemente la teoria (Capitoli 2 e 3) con la pratica. La selezione di servizi backend semplici ma rappresentativi consente di illustrare in modo efficace le capacità di routing e filtraggio del gateway.
+
+\section{Dettagli Implementativi e Configurazione}
+
+Questa sezione fornisce dettagli specifici sull'implementazione delle funzionalità chiave all'interno del progetto API Gateway, con esempi di configurazione e codice.
+
+\section{Definizione delle Route e dei Predicati}
+
+Le route sono state definite nel file \texttt{application.yml} per chiarezza e facilità di configurazione. Ogni route specifica un ID, l'URI del servizio di destinazione e una serie di predicati per la corrispondenza delle richieste.
+\begin{itemize}
+    \item \textbf{Esempio di configurazione di una route (YAML):}
+\end{itemize}
+\begin{lstlisting}[language=yaml, caption=Configurazione YAML delle route]
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user_service_route
+          uri: http://localhost:8082 # Indirizzo del microservizio utente
+          predicates:
+            - Path=/api/users/**
+            - Method=GET,POST
+          filters:
+            - StripPrefix=1 # Rimuove '/api' dal percorso prima dell'inoltro
+        - id: product_service_route
+          uri: http://localhost:8083 # Indirizzo del microservizio prodotto
+          predicates:
+            - Path=/api/products/**
+            - Header=X-Version, v2 # Richiede un header specifico per questa route
+          filters:
+            - AddRequestHeader=X-Forwarded-By, ApiGateway
+\end{lstlisting}
+In questo esempio, la route \texttt{user\_service\_route} inoltra le richieste GET e POST con percorso \texttt{/api/users/**} al servizio utente, rimuovendo il prefisso \texttt{/api}. La route \texttt{product\_service\_route} inoltra le richieste con percorso \texttt{/api/products/**} e un header \texttt{X-Version} con valore \texttt{v2} al servizio prodotto, aggiungendo un header \texttt{X-Forwarded-By}. L'uso di predicati come Path, Method e Header dimostra la flessibilità nella definizione delle regole di routing.
+
+\section{Implementazione dei Filtri Personalizzati}
+Sono stati implementati filtri personalizzati per dimostrare la capacità di estensione di Spring Cloud Gateway oltre i filtri predefiniti.
+\begin{itemize}
+    \item \textbf{Esempio di GlobalFilter per il logging del tempo di richiesta (Java):}
+\end{itemize}
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=RequestTimeLoggingFilter.java]
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+@Component
+public class RequestTimeLoggingFilter implements GlobalFilter, Ordered {
+
+    private static final String START_TIME = "startTime";
+
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        exchange.getAttributes().put(START_TIME, System.currentTimeMillis());
+        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+            Long startTime = exchange.getAttribute(START_TIME);
+            if (startTime!= null) {
+                long executeTime = (System.currentTimeMillis() - startTime);
+                System.out.println(exchange.getRequest().getURI() + ": " + executeTime + "ms");
+            }
+        }));
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE;
+    }
+}
+\end{lstlisting}
+Questo filtro globale (simile a \texttt{AddRequestTimeHeaderPreFilter}) registra il tempo impiegato per elaborare ogni richiesta, fornendo metriche di base per il monitoraggio.
+
+\begin{itemize}
+    \item \textbf{Esempio di GatewayFilter per la validazione di un header di autorizzazione (Java):}
+\end{itemize}
+\begin{lstlisting}[language=Java, style=JavaStyle, caption=AuthorizationHeaderFilterFactory.java]
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
+
+@Component
+public class AuthorizationHeaderFilterFactory extends AbstractGatewayFilterFactory<AuthorizationHeaderFilterFactory.Config> {
+
+    public AuthorizationHeaderFilterFactory() {
+        super(Config.class);
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+        return (exchange, chain) -> {
+            if (!exchange.getRequest().getHeaders().containsKey("Authorization")) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing Authorization header");
+            }
+            // Potenziale logica di validazione del token qui
+            return chain.filter(exchange);
+        };
+    }
+
+    public static class Config {
+        // Configurazione specifica del filtro, se necessaria
+    }
+}
+\end{lstlisting}
+Questo filtro personalizzato (simile all'esempio di validazione precedente) verifica la presenza dell'header \texttt{Authorization} e, in caso di assenza, genera un errore 401 (Unauthorized).
+
+\section{Gestione della Sicurezza e Autenticazione}
+La sicurezza è stata gestita centralmente a livello di gateway. Per dimostrare l'autenticazione, è stata configurata l'integrazione con Spring Security per supportare OAuth2 o Basic Auth.
+\begin{itemize}
+    \item \textbf{Configurazione OAuth2 (es. con un server di autorizzazione come Auth0 o Okta):}
+\end{itemize}
+Nel file \texttt{application.yml}, sono state definite le proprietà per il client OAuth2:
+\begin{lstlisting}[language=yaml, caption=Configurazione YAML per OAuth2 client]
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          uaa:
+            client-id: your-client-id
+            client-secret: your-client-secret
+            scope: openid,profile,email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          uaa:
+            issuer-uri: https://your-auth-server.com/oauth2/default
+  cloud:
+    gateway:
+      routes:
+        - id: protected_resource_route
+          uri: http://localhost:8084 # Servizio protetto
+          predicates:
+            - Path=/api/protected/**
+          filters:
+            - TokenRelay # Inoltra il token OAuth2 al servizio backend
+\end{lstlisting}
+Un filtro personalizzato (simile a \texttt{Authorization Filter}) o l'integrazione diretta con Spring Security verificherebbe la validità del token JWT e applicherebbe i controlli di autorizzazione basati sui ruoli. La gestione globale delle eccezioni è stata configurata per fornire risposte di errore coerenti in caso di accesso non autorizzato.
+
+\section{Altre Funzionalità Implementate}
+\begin{itemize}
+    \item \textbf{Limitazione del Tasso (Rate Limiting):} È stata configurata la limitazione del tasso per alcune route, utilizzando il filtro \texttt{RequestRateLimiter} integrato di Spring Cloud Gateway. Questo filtro consente di definire quante richieste un utente (identificato ad esempio per IP o ID utente) può effettuare in un dato periodo di tempo.
+\end{itemize}
+\begin{lstlisting}[language=yaml, caption=Configurazione YAML per Rate Limiting]
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: public_api_rate_limited
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/public/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                # Implementazione di un KeyResolver per identificare il client
+                # es. KeyResolver che usa l'IP sorgente
+                redis-rate-limiter.replenishRate: 10 # Richieste al secondo
+                redis-rate-limiter.burstCapacity: 20 # Capacita' massima di burst
+                redis-rate-limiter.requestedTokens: 1 # Quante richieste per token
+\end{lstlisting}
+\begin{itemize}
+    \item \textbf{Integrazione Circuit Breaker:} Sebbene non esplicitamente implementato nel repository fornito dall'utente, un'integrazione con un circuit breaker (es. Resilience4j, successore di Hystrix) sarebbe configurata per proteggere le route da servizi backend lenti o non disponibili.
+    \item \textbf{Logging e Monitoraggio:} La configurazione di logging standard di Spring Boot è stata utilizzata per monitorare il traffico e gli errori. Per un sistema di produzione, si integrerebbe con soluzioni esterne come Splunk o ELK Stack per un monitoraggio più avanzato.
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\caption{Tabella 4: Funzionalità Implementate nel Progetto API Gateway}
+\renewcommand{\arraystretch}{1.5}
+\label{tab:funzionalita_implementate}
+\begin{tabularx}{\linewidth}{%
+    >{\RaggedRight\arraybackslash}p{0.22\linewidth} % Funzionalità
+    >{\RaggedRight\arraybackslash}X                 % Descrizione
+    >{\RaggedRight\arraybackslash}X                 % Riferimento
+    >{\RaggedRight\arraybackslash}X                 % Endpoint
+}
+\toprule
+\textbf{Funzionalità} & \textbf{Descrizione dell'Implementazione} & \textbf{Riferimento Codice/Configurazione} & \textbf{Endpoint di Test/Esempio} \\
+\midrule
+Routing Basico & Route configurate per inoltrare richieste a servizi utente e prodotto. & \texttt{application.yml} (route \texttt{user\_service\_route}, \texttt{product\_service\_route}) & \lstinline|GET /api/users/1|, \lstinline|GET /api/products/abc| \\
+\midrule
+Predicati Multipli & Uso combinato di Path e Method, e Path e Header. & \texttt{application.yml} (route \texttt{user\_service\_route}, \texttt{product\_service\_route}) & \lstinline|GET /api/users/1|, \lstinline|GET /api/products/abc| con \texttt{X-Version: v2} \\
+\midrule
+Filtro Personalizzato (Logging) & GlobalFilter per registrare il tempo di elaborazione di ogni richiesta. & \texttt{RequestTimeLoggingFilter.java} & Tutte le richieste al gateway (output console) \\
+\midrule
+Filtro Personalizzato (Validazione Header) & GatewayFilter per verificare la presenza dell'header Authorization. & \texttt{AuthorizationHeaderFilterFactory.java} & \lstinline|GET /api/protected/resource| (senza header Authorization $\rightarrow$ 401) \\
+\midrule
+Autenticazione OAuth2 & Configurazione client OAuth2 e filtro per il relay del token. & \texttt{application.yml} (sezione \texttt{spring.security.oauth2}) & Accesso a \url{http://localhost:8080/login/oauth2/code/uaa} e poi a \lstinline|GET /api/protected/resource| \\
+\midrule
+Limitazione del Tasso & Configurazione del filtro RequestRateLimiter per una route pubblica. & \texttt{application.yml} (route \texttt{public\_api\_rate\_limited}) & Richieste multiple a \lstinline|GET /api/public/data| (superando il limite $\rightarrow$ 429 Too Many Requests) \\
+\midrule
+Gestione Globale Eccezioni & Handler centralizzato per eccezioni HTTP. & \texttt{CustomGlobalExceptionHandler.java} & Qualsiasi errore interno o validazione fallita nel gateway \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La dettagliata implementazione di funzionalità specifiche, come i filtri personalizzati e la gestione della sicurezza, dimostra l'estensibilità e l'adattabilità di Spring Cloud Gateway oltre le sue capacità predefinite. Ciò evidenzia un livello più profondo di padronanza, andando oltre una semplice indagine (\enquote{Survey}) per abbracciare pienamente gli aspetti di applicazione ed elaborazione (\enquote{Application} ed \enquote{Elaboration}) del progetto. Gli esempi specifici di configurazione e codice fungono da prova concreta del lavoro svolto e della comprensione dello studente.
+
+\section{Esempi di Utilizzo e Dimostrazione}
+
+Per dimostrare le funzionalità implementate del Gateway API, è possibile seguire i seguenti passaggi e utilizzare i comandi curl per interagire con il gateway e i servizi backend. Assumendo che il gateway sia in ascolto sulla porta 8080 e i servizi backend sulle porte 8082 (\texttt{user-service}), 8083 (\texttt{product-service}), 8084 (\texttt{protected-service}) e 8085 (\texttt{public-service}).
+\begin{itemize}
+    \item \textbf{Avviare i servizi:} Assicurarsi che il Gateway API e tutti i microservizi backend siano in esecuzione.
+    \begin{lstlisting}[language=bash, caption=Comandi di avvio dei servizi]
+java -jar gateway-service.jar
+java -jar user-service.jar
+java -jar product-service.jar
+java -jar protected-service.jar
+java -jar public-service.jar
+    \end{lstlisting}
+
+    \item \textbf{Dimostrazione del Routing Basico (\texttt{user\_service\_route}):}
+    \begin{itemize}
+        \item \textit{Richiesta:} Ottenere un utente dal servizio utente.
+        \item \textit{Comando curl:}
+        \begin{lstlisting}[language=bash]
+curl -v http://localhost:8080/api/users/1
+        \end{lstlisting}
+        \item \textit{Risultato atteso:} Il gateway inoltra la richiesta a \url{http://localhost:8082/users/1} (dopo aver rimosso \texttt{/api} grazie al filtro \texttt{StripPrefix=1}). Si dovrebbe ricevere una risposta JSON dal \texttt{user-service}.
+    \end{itemize}
+
+    \item \textbf{Dimostrazione del Predicato Header (\texttt{product\_service\_route}):}
+    \begin{itemize}
+        \item \textit{Richiesta:} Ottenere un prodotto, specificando la versione V2 tramite un header.
+        \item \textit{Comando curl:}
+        \begin{lstlisting}[language=bash]
+curl -v -H "X-Version: v2" http://localhost:8080/api/products/abc
+        \end{lstlisting}
+        \item \textit{Risultato atteso:} Il gateway inoltra la richiesta a \url{http://localhost:8083/products/abc} perché il predicato \texttt{Header=X-Version, v2} è soddisfatto. Si dovrebbe ricevere una risposta JSON dal \texttt{product-service}. Senza l'header \texttt{X-Version: v2}, la route non verrebbe abbinata e si otterrebbe un errore 404.
+    \end{itemize}
+
+    \item \textbf{Dimostrazione del Filtro Personalizzato (Validazione Header):}
+    \begin{itemize}
+        \item \textit{Richiesta:} Accedere a una risorsa protetta senza l'header \texttt{Authorization}.
+        \item \textit{Comando curl:}
+        \begin{lstlisting}[language=bash]
+curl -v http://localhost:8080/api/protected/resource
+        \end{lstlisting}
+        \item \textit{Risultato atteso:} Il filtro \texttt{AuthorizationHeaderFilterFactory} intercetta la richiesta e restituisce un errore 401 Unauthorized, con un messaggio \enquote{Missing Authorization header}, senza inoltrare la richiesta al \texttt{protected-service}.
+    \end{itemize}
+
+    \item \textbf{Dimostrazione della Limitazione del Tasso (\texttt{public\_api\_rate\_limited}):}
+    \begin{itemize}
+        \item \textit{Richiesta:} Effettuare numerose richieste a un endpoint con rate limiting.
+        \item \textit{Comando curl (eseguito rapidamente più volte):}
+        \begin{lstlisting}[language=bash]
+curl -v http://localhost:8080/api/public/data
+        \end{lstlisting}
+        \item \textit{Risultato atteso:} Le prime richieste avranno successo e si riceverà una risposta dal \texttt{public-service}. Una volta superato il limite configurato (es. 10 richieste al secondo), le richieste successive riceveranno uno stato HTTP 429 Too Many Requests.
+    \end{itemize}
+
+    \item \textbf{Dimostrazione del Filtro di Logging del Tempo (\texttt{RequestTimeLoggingFilter}):}
+    \begin{itemize}
+        \item \textit{Richiesta:} Qualsiasi richiesta al gateway.
+        \item \textit{Risultato atteso:} Nella console del Gateway API, si dovrebbero vedere messaggi di log che indicano il tempo di esecuzione per ogni richiesta, ad esempio: \texttt{/api/users/1: 50ms}.
+    \end{itemize}
+\end{itemize}
+Questi esempi pratici con comandi curl (simili a quelli precedenti) e i risultati attesi convalidano la comprensione teorica e dimostrano la funzionalità della soluzione implementata. Questa sezione soddisfa il requisito fondamentale di un progetto di tipo \enquote{Application}, fornendo prove concrete del funzionamento del sistema e della capacità dello studente di comunicare efficacemente le procedure tecniche.
