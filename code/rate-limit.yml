@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: public_api_rate_limited
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/public/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                # Implementazione di un KeyResolver per identificare il client
+                # es. KeyResolver che usa l'IP sorgente
+                redis-rate-limiter.replenishRate: 10 # Richieste al secondo
+                redis-rate-limiter.burstCapacity: 20 # Capacita' massima di burst
+                redis-rate-limiter.requestedTokens: 1 # Quante richieste per token

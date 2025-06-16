@@ -6,8 +6,14 @@
 \usepackage{fancyhdr}
 \usepackage{graphicx}
 \usepackage{csquotes}
+
 \usepackage[hidelinks]{hyperref}
-\usepackage[linesnumbered,ruled]{algorithm2e}
+\hypersetup{
+    pdftitle={Studio e Implementazione di un Gateway API con Spring Cloud in Architetture a Microservizi},
+    pdfauthor={Andrea Donadello},
+    pdfkeywords={API Gateway, Spring Cloud, Microservizi, Architetture}
+}
+
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{pgfplots}
@@ -23,125 +29,145 @@
 \usepackage{tabularx}
 \usepackage{ragged2e}  
 \usepackage{textcomp} 
+\usepackage{microtype}
+\usepackage{adjustbox} 
 
 \title{Studio e Implementazione di un Gateway API con Spring Cloud in Architetture a Microservizi}
 \author{Andrea Donadello} 
+
+\widowpenalty=10000
+\clubpenalty=10000
+
+\captionsetup{justification=centering, font=small, labelfont=bf}
 
 \pgfplotsset{compat=1.18}
 
 \setlist{itemsep=0pt, topsep=0.5ex}
 
-\lstset{
-    basicstyle=\small\ttfamily,
-    commentstyle=\color{green!50!black}\itshape,
-    keywordstyle=\color{blue}\bfseries, 
-    stringstyle=\color{red!70!black}, 
-    numberstyle=\tiny\color{gray},
-    breaklines=true,
-    frame=single,
-    numbers=left,
-    captionpos=b,
-    tabsize=2,
-    showspaces=false,
-    showtabs=false,
-    columns=fullflexible,
-    keepspaces=true,
-    flexiblecolumns=true, 
-    literate={-}{-}1 {=}{=}1 {~}{~}1 
-}
-
-% --- Definizione dei colori ---
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegreen}{rgb}{0,0.5,0}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{codeblue}{rgb}{0.0,0.2,0.65} 
-\definecolor{codeorange}{rgb}{0.9,0.3,0}  
-\definecolor{codebrown}{rgb}{0.6,0.4,0.2} 
-\definecolor{codeannotation}{rgb}{0.4,0.4,0.4} 
-\definecolor{backcolour}{rgb}{0.97,0.97,0.97} 
+\definecolor{codeblue}{rgb}{0.0,0.2,0.65}
+\definecolor{codeorange}{rgb}{0.9,0.3,0}
+\definecolor{codekey}{rgb}{0.1,0.1,0.7} 
+\definecolor{codestring}{rgb}{0.8,0.2,0.2} 
+\definecolor{codecomment}{rgb}{0.45,0.45,0.45}\itshape
+\definecolor{codeannotation}{rgb}{0.4,0.4,0.4}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+\definecolor{linecolor}{rgb}{0.8,0.8,0.8} 
 
-\lstdefinestyle{JavaStyle}{
-    backgroundcolor=\color{backcolour},   
-    commentstyle=\color{codegreen}\itshape,
-    keywordstyle=[1]\color{codeblue}\bfseries,    
-    keywordstyle=[2]\color{codebrown},           
-    keywordstyle=[3]\color{codeannotation}\itshape,
+\lstdefinestyle{BaseStyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codecomment},
+    stringstyle=\color{codestring},
     numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codeorange},
     basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
+    breaklines=true,
+    captionpos=b,
+    frame=single,
+    rulecolor=\color{linecolor},
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
     showstringspaces=false,
-    showtabs=false,                  
+    showtabs=false,
     tabsize=2,
-    frame=lines, 
-    rulecolor=\color{black!30},
+    columns=fullflexible,
     title=\lstname,
-    literate=
-        {->}{{$\rightarrow$}}2 
-        {<-}{{$\leftarrow$}}2
-        {<L>}{{$\mathcal{L}$}}1,
-    postbreak=\mbox{\textcolor{red}{$\hookleftarrow$}\space}, 
-    escapeinside={\%*}{*)} 
+    postbreak=\mbox{\textcolor{red}{$\hookleftarrow$}\space},
+    escapeinside={\%*}{*)}
 }
 
 \lstdefinelanguage{Java}{
     keywords=[1]{ 
-        abstract,continue,for,new,switch,assert,default,goto,package,synchronized,
-        boolean,do,if,private,this,break,double,implements,protected,throw,
-        byte,else,import,public,throws,case,enum,instanceof,return,transient,
-        catch,extends,int,short,try,char,final,interface,static,void,
-        class,finally,long,strictfp,volatile,const,float,native,super,while,
-        % Java 10+
-        var,
-        % Java 14+
-        record, yield,
-        % Java 17+
-        sealed, non-sealed, permits
+        abstract, continue, for, new, switch, assert, default, goto, package, synchronized,
+        boolean, do, if, private, this, break, double, implements, protected, throw,
+        byte, else, import, public, throws, case, enum, instanceof, return, transient,
+        catch, extends, int, short, try, char, final, interface, static, void,
+        class, finally, long, strictfp, volatile, const, float, native, super, while,
+        var, record, yield, sealed, non-sealed, permits
     },
     keywordstyle=[1]\color{codeblue}\bfseries,
     keywords=[2]{ 
-        true,false,null,
-        String,Integer,Double,Boolean,Character,Byte,Short,Long,Float,Object,Void,
-        List,ArrayList,Map,HashMap,Set,HashSet,Exception,System,Math,
-        Optional,Stream,Runnable,Thread,Class,StringBuilder,StringBuffer
+        true, false, null,
+        String, Integer, Double, Boolean, Character, Byte, Short, Long, Float, Object, Void,
+        List, ArrayList, Map, HashMap, Set, HashSet, Exception, System, Math,
+        Optional, Stream, Runnable, Thread, Class, StringBuilder, StringBuffer
     },
-    keywordstyle=[2]\color{codebrown},
+    keywordstyle=[2]\color{codepurple},
     keywords=[3]{ 
-        @Override,@Deprecated,@SuppressWarnings,@FunctionalInterface,@SafeVarargs,
-        @NonNull,@Nullable,@PostConstruct,@PreDestroy,@Entity,@Table,@Id,@Column,
-        @Autowired,@Component,@Service,@Repository,@Controller,@RestController,
-        @GetMapping,@PostMapping,@PutMapping,@DeleteMapping,@RequestMapping,
-        @Data 
+        @Override, @Deprecated, @SuppressWarnings, @FunctionalInterface, @SafeVarargs,
+        @NonNull, @Nullable, @PostConstruct, @PreDestroy, @Entity, @Table, @Id, @Column,
+        @Autowired, @Component, @Service, @Repository, @Controller, @RestController,
+        @GetMapping, @PostMapping, @PutMapping, @DeleteMapping, @RequestMapping,
+        @Data
     },
-    keywordstyle=[3]\color{codeannotation}\itshape,
+    keywordstyle=[3]\color{codeannotation},
     sensitive=true,
     comment=[l]{//},
     morecomment=[s]{/*}{*/},
-    morecomment=[s][\color{codegreen!80!black}\itshape]{/**}{*/}, 
+    morecomment=[s][\color{codegreen!80!black}]{/**}{*/}, % Javadoc
     string=[b]{"},
-    morestring=[b]{'},
-    alsoletter={_,\$}
+    morestring=[b]{'}
 }
 
-\lstdefinelanguage{Yaml}{
-  keywords={true,false,null,y,n,on,off},
-  keywordstyle=\color{blue}\bfseries,
-  identifierstyle=\color{black},
+\lstdefinestyle{JavaStyle}{
+    style=BaseStyle,
+    language=Java,
+    literate={->}{{$\rightarrow$}}2 {<-}{{$\leftarrow$}}2
+}
+
+\lstdefinelanguage{YAML}{
+  keywords=[1]{true, false, null, on, off, yes, no},
+  keywordstyle=[1]\color{codeblue},
+  identifierstyle=\color{codekey},
   sensitive=false,
   comment=[l]{\#},
-  commentstyle=\color{gray}\ttfamily,
-  string=[s]{"}{"}, 
-  stringstyle=\color{red}\ttfamily, 
-  morestring=[s]{'}{'}, 
-  literate={-}{{{\color{black}-}}}1
-           {>}{{{\color{black}>}}}1
-           {:}{{{\color{black}:}}}1
+  morestring=[b]',
+  morestring=[b]",
+  literate=
+    {>}{{\textcolor{codepurple}>}}1
+    {|}{{\textcolor{codepurple}|}}1
+    {-}{{{\color{codepurple}-}}}1
+    {?}{{{\color{codepurple}?}}}1
+    {:}{{{:}}}0,
+}
+
+\lstdefinestyle{YAMLStyle}{
+    style=BaseStyle,
+    language=YAML
+}
+
+\lstdefinelanguage{bash}{
+    keywords={
+        if, then, else, fi, for, in, do, done, while, case, esac, function,
+        select, until, echo, exit, return, test, read, unset, export
+    },
+    keywordstyle=\color{codeblue}\bfseries,
+    keywords=[2]{
+        ls, cd, pwd, cp, mv, rm, mkdir, rmdir, touch, cat, grep, find,
+        sed, awk, tar, gzip, gunzip, chmod, chown, sudo, su, man,
+        git, docker, kubectl, java, mvn, gradle, npm, node, python
+    },
+    keywordstyle=[2]\color{codepurple},
+    sensitive=false,
+    comment=[l]{\#},
+    morestring=[b]",
+    morestring=[b]',
+    morestring=[s][\color{codestring}]{`}{`} 
+}
+
+\lstdefinestyle{BashStyle}{
+    style=BaseStyle,
+    language=bash,
+    identifierstyle=\color{black},
+    alsoletter={-,$},
+    literate=
+      {\\$}{{\textcolor{codepurple}{\$}}}1
+      {--}{{\textcolor{codeorange}{--}}}2
+      {-}{{\textcolor{codeorange}{-}}}1
+      {~}{{\raise.5ex\hbox{\texttildelow}}}1
 }
 
 \newenvironment{abstract}%
@@ -153,6 +179,7 @@
 
 \begin{document}
 
+    \pagestyle{plain}
     \maketitle
 
     \input{chapters/abstract}
@@ -173,5 +200,11 @@
 
     \chapter[Implementazione Pratica]{Implementazione Pratica: Il Progetto API Gateway}
     \input{chapters/chapter5}
+
+    \chapter[Analisi e Limitazioni]{Analisi Critica e Limitazioni}
+    \input{chapters/chapter6}
+
+    \chapter{Conclusioni e Sviluppi Futuri}
+    \input{chapters/chapter7}
 
 \end{document}

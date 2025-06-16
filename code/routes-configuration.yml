@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user_service_route
+          uri: http://localhost:8082 # Indirizzo del microservizio utente
+          predicates:
+            - Path=/api/users/**
+            - Method=GET,POST
+          filters:
+            - StripPrefix=1 # Rimuove '/api' dal percorso prima dell'inoltro
+        - id: product_service_route
+          uri: http://localhost:8083 # Indirizzo del microservizio prodotto
+          predicates:
+            - Path=/api/products/**
+            - Header=X-Version, v2 # Richiede un header specifico per questa route
+          filters:
+            - AddRequestHeader=X-Forwarded-By, ApiGateway

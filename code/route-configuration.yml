@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: book-service-route
+          uri: http://localhost:8081 # URI del servizio backend
+          predicates:
+            - Path=/api/books/** # Predicato di percorso
+          filters:
+            - StripPrefix=2 # Rimuove /api/books dal percorso prima di inoltrare

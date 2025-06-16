@@ -20,25 +20,9 @@ Questo modello di elaborazione basato su filtri e route consente una grande fles
 Spring Cloud Gateway si basa su tre componenti fondamentali per la sua operatività: Route, Predicati e Filtri. La modularità di questi elementi consente una configurazione dichiarativa e un'estensibilità notevole, permettendo di gestire logiche di routing complesse e preoccupazioni trasversali con grande flessibilità.
 \begin{description}
     \item[Route:] Una Route è il \enquote{blocco di costruzione fondamentale} del gateway. È definita da un ID univoco, un URI di destinazione (il servizio backend a cui la richiesta deve essere inoltrata), una collezione di predicati e una collezione di filtri. Una route viene considerata \enquote{matched} (corrispondente) se l'operazione logica AND su tutti i suoi predicati restituisce true.
-
-    Esempio di configurazione (YAML):
-    \begin{lstlisting}[language=yaml, caption=Esempio di configurazione di una route in YAML]
-spring:
-  cloud:
-    gateway:
-      routes:
-        - id: book-service-route
-          uri: http://localhost:8081 # URI del servizio backend
-          predicates:
-            - Path=/api/books/** # Predicato di percorso
-          filters:
-            - StripPrefix=2 # Rimuove /api/books dal percorso prima di inoltrare
-    \end{lstlisting}
-
+    \lstinputlisting[style=YAMLStyle, caption=Esempio di configurazione di una route in YAML]{code/route-configuration.yml}
     \item[Predicate:] I Predicati sono funzioni booleane (Java 8 Function Predicate) che permettono di far corrispondere le route a qualsiasi attributo della richiesta HTTP. Questo include header, parametri, metodi HTTP, host, e persino il tempo. È possibile combinare più predicati con operatori logici AND per creare regole di routing altamente specifiche.
-
     Esempi comuni di predicati includono: Path, Host, Method, Query, Header, Cookie, RemoteAddr, After, Before, Between. I predicati After, Before e Between sono particolarmente utili per scenari come le finestre di manutenzione, permettendo di instradare il traffico in base a intervalli temporali specifici.
-
     \item[Filter:] I Filtri forniscono un meccanismo per modificare le richieste HTTP in ingresso e le risposte HTTP in uscita. Esistono due tipi principali di filtri:
     \begin{itemize}
         \item \textbf{GatewayFilter:} Applicati a una specifica route.
