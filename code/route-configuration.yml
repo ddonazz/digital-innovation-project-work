@@ -3,7 +3,7 @@ spring:
     gateway:
       routes:
         - id: book-service-route
-          uri: http://localhost:8081 # URI del servizio backend
+          uri: lb://BOOK-SERVICE # Nome del servizio utilizzando Eureka
           predicates:
             - Path=/api/books/** # Predicato di percorso
           filters:

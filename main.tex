@@ -2,7 +2,15 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
-\usepackage[a4paper, margin=2.5cm]{geometry}
+
+\usepackage{geometry}
+\geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+}
+
 \usepackage{fancyhdr}
 \usepackage{graphicx}
 \usepackage{csquotes}
@@ -12,6 +20,10 @@
     pdftitle={Studio e Implementazione di un Gateway API con Spring Cloud in Architetture a Microservizi},
     pdfauthor={Andrea Donadello},
     pdfkeywords={API Gateway, Spring Cloud, Microservizi, Architetture}
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue,
 }
 
 \usepackage{listings}
@@ -35,6 +47,8 @@
 \title{Studio e Implementazione di un Gateway API con Spring Cloud in Architetture a Microservizi}
 \author{Andrea Donadello} 
 
+\renewcommand{\lstlistlistingname}{Indice del codice}
+
 \widowpenalty=10000
 \clubpenalty=10000
 
@@ -55,6 +69,13 @@
 \definecolor{codeannotation}{rgb}{0.4,0.4,0.4}
 \definecolor{backcolour}{rgb}{0.97,0.97,0.97}
 \definecolor{linecolor}{rgb}{0.8,0.8,0.8} 
+
+\lstset{
+  basicstyle=\ttfamily\small, 
+  breaklines=true,
+  breakatwhitespace=true,  
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
 
 \lstdefinestyle{BaseStyle}{
     backgroundcolor=\color{backcolour},
@@ -185,6 +206,10 @@
     \input{chapters/abstract}
 
     \tableofcontents
+
+    \listoftables 
+
+    \lstlistoflistings
 
     \chapter{Introduzione}
     \input{chapters/introduction}

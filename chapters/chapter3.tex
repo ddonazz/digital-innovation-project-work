@@ -1,8 +1,13 @@
 \section{Panoramica e Principi Fondamentali}
 
-Spring Cloud Gateway (SCG) si presenta come un Gateway API leggero e reattivo, costruito sopra il framework Spring. È stato progettato per fornire un metodo semplice ma efficace per instradare le richieste alle API e per gestire le preoccupazioni trasversali quali sicurezza, monitoraggio/metriche e resilienza. La sua architettura è saldamente radicata su tecnologie moderne dell'ecosistema Spring: Spring Framework 5, Project Reactor e Spring Boot 2.0. Questa fondazione è cruciale, poiché conferisce a SCG la sua natura reattiva e non bloccante, un aspetto distintivo che lo rende particolarmente adatto per gestire un elevato numero di richieste concorrenti con bassa latenza.
+Spring Cloud Gateway (SCG) si presenta come un Gateway API leggero e reattivo, costruito sopra il framework Spring. \\
+È stato progettato per fornire un metodo semplice ma efficace per instradare le richieste alle API e per gestire le preoccupazioni trasversali quali sicurezza, monitoraggio/metriche e resilienza. \\
+La sua architettura è saldamente radicata su tecnologie moderne dell'ecosistema Spring: Spring Framework 5, Project Reactor e Spring Boot 2.0. 
+Questa fondazione è cruciale, poiché conferisce a SCG la sua natura reattiva e non bloccante, un aspetto distintivo che lo rende particolarmente adatto per gestire un elevato numero di richieste concorrenti con bassa latenza. \\
 
-La scelta di basare SCG su Project Reactor e Spring WebFlux non è un mero dettaglio tecnico, ma una decisione architetturale fondamentale che lo distingue dai gateway tradizionali basati su modelli di programmazione bloccanti. I modelli di programmazione reattiva sono intrinsecamente progettati per gestire un gran numero di connessioni concorrenti con un numero ridotto di thread, ottimizzando l'utilizzo delle risorse e migliorando le prestazioni sotto carichi pesanti. Questo è particolarmente vantaggioso in ambienti a microservizi, dove la capacità di gestire efficacemente un flusso elevato di traffico è essenziale per garantire \enquote{carichi di lavoro a bassa latenza e alta produttività}.
+La scelta di basare SCG su Project Reactor e Spring WebFlux non è un mero dettaglio tecnico, ma una decisione architetturale fondamentale che lo distingue dai gateway tradizionali basati su modelli di programmazione bloccanti. \\
+I modelli di programmazione reattiva sono intrinsecamente progettati per gestire un gran numero di connessioni concorrenti con un numero ridotto di thread, ottimizzando l'utilizzo delle risorse e migliorando le prestazioni sotto carichi pesanti. 
+Questo è particolarmente vantaggioso in ambienti a microservizi, dove la capacità di gestire efficacemente un flusso elevato di traffico è essenziale per garantire \enquote{carichi di lavoro a bassa latenza e alta produttività}.  \\
 
 Il ciclo di vita di una richiesta all'interno di Spring Cloud Gateway segue un flusso ben definito:
 \begin{enumerate}[label=\arabic*.]
@@ -35,15 +40,16 @@ La capacità di definire le route in modo dichiarativo, di combinare i predicati
 Questa modularità rende il gateway altamente configurabile ed estensibile, consentendo agli sviluppatori di aggiungere facilmente nuove funzionalità o di implementare filtri personalizzati per requisiti specifici. 
 Questo principio di design è fondamentale per la sua adattabilità in diversi ambienti a microservizi.
 
-\begin{table}[htbp]
+\begin{table}[ht!]
+\small
 \centering
 \caption{Esempi di Predicati di Route in Spring Cloud Gateway}
 \renewcommand{\arraystretch}{1.5}
 \label{tab:predicati_scg}
 \begin{tabularx}{\linewidth}{%
-    >{\RaggedRight\arraybackslash}p{0.17\linewidth}
+    >{\RaggedRight\arraybackslash}p{0.15\linewidth}
     >{\RaggedRight\arraybackslash}X
-    >{\RaggedRight\arraybackslash}p{0.22\linewidth}
+    >{\RaggedRight\arraybackslash}p{0.20\linewidth}
     >{\RaggedRight\arraybackslash}X
 }
 \toprule
@@ -62,7 +68,8 @@ RemoteAddr & Corrisponde all'indirizzo IP remoto della richiesta. & 192.168.1.1/
 \end{tabularx}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[ht!]
+\small
 \centering
 \caption{Esempi di Filtri in Spring Cloud Gateway}
 \renewcommand{\arraystretch}{1.5}

@@ -1,14 +1,23 @@
 \section{Cos'è un API Gateway e il suo Ruolo nelle Architetture a Microservizi}
 
-Un API Gateway è un componente architetturale che funge da singolo punto di ingresso per tutte le richieste dei client verso un sistema di microservizi backend. In essenza, agisce come un \enquote{reverse proxy} o un \enquote{edge service} che si interpone tra i client e i servizi backend. Questo modello risolve una problematica comune nelle architetture a microservizi, nota come \enquote{N+1 problem}, dove un client dovrebbe altrimenti conoscere e interagire direttamente con N servizi backend distinti per soddisfare una singola richiesta complessa. L'API Gateway aggrega queste interazioni, presentando un'unica interfaccia semplificata ai client.
+Un API Gateway è un componente architetturale che funge da singolo punto di ingresso per tutte le richieste dei client verso un sistema di microservizi backend.
+In essenza, agisce come un \enquote{reverse proxy} o un \enquote{edge service} che si interpone tra i client e i servizi backend. \\
+Questo modello risolve una problematica comune nelle architetture a microservizi, nota come \enquote{N+1 problem}, dove un client dovrebbe altrimenti conoscere e interagire direttamente con N servizi backend distinti per soddisfare una singola richiesta complessa. 
+L'API Gateway aggrega queste interazioni, presentando un'unica interfaccia semplificata ai client. \\
 
-Il ruolo di un API Gateway è multifunzionale e critico per la gestione efficace di sistemi distribuiti. Esso non si limita al semplice routing delle richieste al servizio appropriato, ma centralizza anche una serie di preoccupazioni trasversali che altrimenti dovrebbero essere implementate in ogni singolo microservizio. Questa centralizzazione è fondamentale per mantenere la coerenza, ridurre la ridondanza del codice e accelerare lo sviluppo.
+Il ruolo di un API Gateway è multifunzionale e critico per la gestione efficace di sistemi distribuiti.
+Esso non si limita al semplice routing delle richieste al servizio appropriato, ma centralizza anche una serie di preoccupazioni trasversali che altrimenti dovrebbero essere implementate in ogni singolo microservizio.
+Questa centralizzazione è fondamentale per mantenere la coerenza, ridurre la ridondanza del codice e accelerare lo sviluppo. \\
 
-La funzione di un API Gateway come punto di ingresso unificato semplifica intrinsecamente l'integrazione dei client e disaccoppia i client dall'evoluzione dei servizi di backend. Se i client fossero costretti a interagire direttamente con ogni microservizio, dovrebbero essere a conoscenza degli indirizzi specifici, dei protocolli e delle modifiche di ciascuno. Un Gateway API astrae questa complessità, offrendo un'interfaccia coerente. Questa separazione significa che le modifiche ai servizi di backend (ad esempio, la fusione o la divisione di servizi, o la migrazione di tecnologie) possono essere implementate senza richiedere aggiornamenti sul lato client. Ciò riduce significativamente il sovraccarico di manutenzione e accelera i cicli di sviluppo, poiché i team possono concentrarsi sulla logica di business senza preoccuparsi delle implicazioni per i client.
+La funzione di un API Gateway come punto di ingresso unificato semplifica intrinsecamente l'integrazione dei client e disaccoppia i client dall'evoluzione dei servizi di backend.
+Se i client fossero costretti a interagire direttamente con ogni microservizio, dovrebbero essere a conoscenza degli indirizzi specifici, dei protocolli e delle modifiche di ciascuno. \\
+Un Gateway API astrae questa complessità, offrendo un'interfaccia coerente. Questa separazione significa che le modifiche ai servizi di backend (ad esempio, la fusione o la divisione di servizi, o la migrazione di tecnologie) possono essere implementate senza richiedere aggiornamenti sul lato client.
+Ciò riduce significativamente il sovraccarico di manutenzione e accelera i cicli di sviluppo, poiché i team possono concentrarsi sulla logica di business senza preoccuparsi delle implicazioni per i client.
 
 \section{Funzionalità Comuni dei Gateway API}
 
-Un Gateway API robusto e completo offre una vasta gamma di funzionalità essenziali per la gestione efficiente e sicura delle API in un ambiente a microservizi. Queste funzionalità sono progettate per affrontare le sfide intrinseche dei sistemi distribuiti e per centralizzare le preoccupazioni trasversali.
+Un Gateway API robusto e completo offre una vasta gamma di funzionalità essenziali per la gestione efficiente e sicura delle API in un ambiente a microservizi. \\
+Queste funzionalità sono progettate per affrontare le sfide intrinseche dei sistemi distribuiti e per centralizzare le preoccupazioni trasversali.
 
 Le funzionalità comuni includono:
 \begin{itemize}
@@ -24,9 +33,11 @@ Le funzionalità comuni includono:
     \item \textbf{Header di Sicurezza:} Applicazione automatica di header di sicurezza (ad esempio, Cache-Control, X-Content-Type-Options, Strict-Transport-Security) per rafforzare la postura di sicurezza complessiva.
 \end{itemize}
 
-L'aggregazione di queste preoccupazioni trasversali all'interno del Gateway API le trasforma da responsabilità individuali di ciascun servizio in politiche centralizzate e gestibili. Questo approccio riduce il carico di sviluppo sui team, che possono concentrarsi sulla creazione di valore di business piuttosto che sulla ricostruzione di componenti infrastrutturali. Il risultato è un'accelerazione dell'innovazione e del tempo di commercializzazione, oltre a una conformità più efficiente e un'esperienza cliente superiore, derivanti dall'applicazione coerente di best practice di sicurezza e gestione del traffico.
+L'aggregazione di queste preoccupazioni trasversali all'interno del Gateway API le trasforma da responsabilità individuali di ciascun servizio in politiche centralizzate e gestibili. \\
+Questo approccio riduce il carico di sviluppo sui team, che possono concentrarsi sulla creazione di valore di business piuttosto che sulla ricostruzione di componenti infrastrutturali. \\
+Il risultato è un'accelerazione dell'innovazione e del tempo di commercializzazione, oltre a una conformità più efficiente e un'esperienza cliente superiore, derivanti dall'applicazione coerente di best practice di sicurezza e gestione del traffico.
 
-\begin{table}[htbp]
+\begin{table}[h!]
 \centering
 \caption{Funzionalità Comuni di un API Gateway (con librerie standard)}
 \renewcommand{\arraystretch}{1.5}
