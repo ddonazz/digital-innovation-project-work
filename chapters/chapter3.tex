@@ -7,7 +7,7 @@ Questa fondazione è cruciale, poiché conferisce a SCG la sua natura reattiva e
 
 La scelta di basare SCG su Project Reactor e Spring WebFlux non è un mero dettaglio tecnico, ma una decisione architetturale fondamentale che lo distingue dai gateway tradizionali basati su modelli di programmazione bloccanti. \\
 I modelli di programmazione reattiva sono intrinsecamente progettati per gestire un gran numero di connessioni concorrenti con un numero ridotto di thread, ottimizzando l'utilizzo delle risorse e migliorando le prestazioni sotto carichi pesanti. 
-Questo è particolarmente vantaggioso in ambienti a microservizi, dove la capacità di gestire efficacemente un flusso elevato di traffico è essenziale per garantire \enquote{carichi di lavoro a bassa latenza e alta produttività}.  \\
+Questo è particolarmente vantaggioso in ambienti a microservizi, dove la capacità di gestire efficacemente un flusso elevato di traffico è essenziale per garantire \textit{carichi di lavoro a bassa latenza e alta produttività}.  \\
 
 Il ciclo di vita di una richiesta all'interno di Spring Cloud Gateway segue un flusso ben definito:
 \begin{enumerate}[label=\arabic*.]
@@ -24,7 +24,7 @@ Questo modello di elaborazione basato su filtri e route consente una grande fles
 
 Spring Cloud Gateway si basa su tre componenti fondamentali per la sua operatività: Route, Predicati e Filtri. La modularità di questi elementi consente una configurazione dichiarativa e un'estensibilità notevole, permettendo di gestire logiche di routing complesse e preoccupazioni trasversali con grande flessibilità.
 \begin{description}
-    \item[Route:] Una Route è il \enquote{blocco di costruzione fondamentale} del gateway. È definita da un ID univoco, un URI di destinazione (il servizio backend a cui la richiesta deve essere inoltrata), una collezione di predicati e una collezione di filtri. Una route viene considerata \enquote{matched} (corrispondente) se l'operazione logica AND su tutti i suoi predicati restituisce true.
+    \item[Route:] Una Route è il \textit{blocco di costruzione fondamentale} del gateway. È definita da un ID univoco, un URI di destinazione (il servizio backend a cui la richiesta deve essere inoltrata), una collezione di predicati e una collezione di filtri. Una route viene considerata \textit{matched} (corrispondente) se l'operazione logica AND su tutti i suoi predicati restituisce true.
     \lstinputlisting[style=YAMLStyle, caption=Esempio di configurazione di una route in YAML]{code/route-configuration.yml}
     \item[Predicate:] I Predicati sono funzioni booleane (Java 8 Function Predicate) che permettono di far corrispondere le route a qualsiasi attributo della richiesta HTTP. Questo include header, parametri, metodi HTTP, host, e persino il tempo. È possibile combinare più predicati con operatori logici AND per creare regole di routing altamente specifiche.
     Esempi comuni di predicati includono: Path, Host, Method, Query, Header, Cookie, RemoteAddr, After, Before, Between. I predicati After, Before e Between sono particolarmente utili per scenari come le finestre di manutenzione, permettendo di instradare il traffico in base a intervalli temporali specifici.

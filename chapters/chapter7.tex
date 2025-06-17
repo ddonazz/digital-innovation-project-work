@@ -6,7 +6,7 @@ Attraverso l'indagine, è stata consolidata la comprensione del ruolo essenziale
 
 L'implementazione pratica ha dimostrato con successo le capacità di \texttt{Spring Cloud Gateway} nel \emph{routing dinamico}, nella gestione centralizzata dell'\emph{autenticazione e dell'autorizzazione} (anche tramite \texttt{OAuth2}), nell'applicazione di \emph{filtri personalizzati} per la manipolazione delle richieste/risposte e nella \emph{limitazione del tasso di richieste}. Questi esempi concreti hanno convalidato la comprensione teorica e l'applicabilità della tecnologia.
 
-L'analisi critica ha fornito una prospettiva equilibrata, riconoscendo i numerosi vantaggi di \textsc{SCG} in termini di sicurezza, accelerazione dello sviluppo e miglioramento delle prestazioni, ma anche evidenziando le sfide. Tra queste, l'introduzione di \emph{complessità architetturale}, il potenziale di \emph{latenza aggiuntiva} e le sfide legate alla gestione dello stato delle \emph{connessioni WebSocket} in scenari specifici. Questa valutazione ponderata è fondamentale per una comprensione completa della tecnologia.
+L'analisi critica ha fornito una prospettiva equilibrata, riconoscendo i numerosi vantaggi di \texttt{SCG} in termini di sicurezza, accelerazione dello sviluppo e miglioramento delle prestazioni, ma anche evidenziando le sfide. Tra queste, l'introduzione di \emph{complessità architetturale}, il potenziale di \emph{latenza aggiuntiva} e le sfide legate alla gestione dello stato delle \emph{connessioni WebSocket} in scenari specifici. Questa valutazione ponderata è fondamentale per una comprensione completa della tecnologia.
 
 \section{Contributi e Prospettive Future}
 
@@ -18,7 +18,7 @@ Guardando al futuro, diverse aree di sviluppo potrebbero ulteriormente migliorar
     \item \textbf{Resilienza Avanzata:} Approfondire l'implementazione di pattern di resilienza come \emph{Circuit Breaker} (utilizzando \texttt{Resilience4j}) e \emph{Retry}, configurando fallback complessi per gestire i guasti dei servizi backend in modo più robusto.
     \item \textbf{Monitoraggio e Tracciamento Distribuito:} Integrare il Gateway con sistemi di monitoraggio e tracciamento distribuiti (es. \texttt{Zipkin} o \texttt{OpenTelemetry}) per ottenere una visibilità end-to-end sulle richieste attraverso l'intera catena di microservizi, facilitando il debugging e l'ottimizzazione delle prestazioni.
     \item \textbf{Gestione Avanzata di WebSocket:} Esplorare soluzioni e pattern architetturali per superare le limitazioni nella gestione dello stato delle connessioni \texttt{WebSocket} e nella capacità di broadcasting, rendendo il gateway più adatto per applicazioni real-time su larga scala.
-    \item \textbf{Automazione del Deployment (\textsc{CI/CD}):} Sviluppare una pipeline \textsc{CI/CD} per automatizzare il building, il testing e il deployment del Gateway API e dei suoi servizi backend, migliorando l'efficienza operativa.
+    \item \textbf{Automazione del Deployment (\texttt{CI/CD}):} Sviluppare una pipeline \texttt{CI/CD} per automatizzare il building, il testing e il deployment del Gateway API e dei suoi servizi backend, migliorando l'efficienza operativa.
     \item \textbf{Test di Performance e Carico:} Eseguire test di performance e carico per valutare la scalabilità del Gateway in diverse condizioni di traffico e identificare potenziali colli di bottiglia.
 \end{itemize}
 
